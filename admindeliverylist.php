@@ -57,7 +57,7 @@ if(isset($_SESSION["admin"])){
                 </thead>
                 <tbody>
                 <?php
-                $sqlgetdelstat = "SELECT delt.cust_id AS uid, CONCAT(userdetail.f_name,' ' ,userdetail.m_name,' ',userdetail.l_name) AS 'FullName', prodlist.product_name AS 'ProductName', prodlist.selling_price AS 'Price', delt.status as Status FROM ng_deliverytable as delt INNER JOIN ng_userdetails as userdetail ON delt.cust_id=userdetail.user_id INNER JOIN ng_productlist AS prodlist ON delt.pack_id=prodlist.prod_id";
+                $sqlgetdelstat = "SELECT delt.cust_id AS uid, CONCAT(userdetail.f_name,' ' ,userdetail.m_name,' ',userdetail.l_name) AS 'FullName', prodlist.product_name AS 'ProductName', prodlist.selling_price AS 'Price', delt.status as Status FROM ng_deliverytable as delt INNER JOIN ng_userdetails as userdetail ON delt.cust_id = userdetail.user_id INNER JOIN ng_productlist AS prodlist ON delt.pack_id = prodlist.prod_id";
                 $resdelstat = $conn->query($sqlgetdelstat);
                 $isdelivered = false;
                 $radioname="";
@@ -65,14 +65,25 @@ if(isset($_SESSION["admin"])){
                     $i=1;
                     while($rowdelstat = mysqli_fetch_assoc($resdelstat)){
                         $isdelivered = $rowdelstat["Status"];
+                        $radiodel = $radioundel = "";
                         $radioname = $rowdelstat["uid"];
+                        if($isdelivered==1){
+                          $radiodel = "<input type='radio' onclick='updatestatus(this.name,1)' id='yes' name='$radioname' checked />";
+                        }else{
+                          $radiodel = "<input type='radio' onclick='updatestatus(this.name,1)' id='yes' name='$radioname'";
+                        }
+                        if($isdelivered==0){
+                          $radioundel = "<input type='radio' onclick='updatestatus(this.name,2)' id='no' name='$radioname' checked />";
+                        }else{
+                          $radioundel = "<input type='radio' onclick='updatestatus(this.name,2)' id='no' name='$radioname' />";
+                        }
                         echo "<tr><td>$i</td>
                         <td>".$rowdelstat["uid"]."</td>
                         <td>".$rowdelstat["FullName"]."</td>
                         <td>".$rowdelstat["ProductName"]."</td>
                         <td>".$rowdelstat["Price"]."</td>
-                        <td><input type='radio' id='yes' name='$radioname'/></td>
-                        <td><input type='radio' id='no' name='$radioname' checked/></td>
+                        <td>".$radiodel."</td>
+                        <td>".$radioundel."</td>
                         </tr>";
                         $i++;
                     }
@@ -81,6 +92,26 @@ if(isset($_SESSION["admin"])){
               </tbody>
 
               </table>
+              <script>
+                    function updatestatus(uid, val)
+                    {
+                      $.ajax({
+                            url : "updatestatus.php",
+                            type : "POST",
+                            data : { dataget : uid, x : val },
+                            success : function(result) {
+                              if (result == "1")
+                              {
+                                alert ("Updated sucessfully");
+                              }
+                              else
+                              {
+                                alert ("Can not update" + result);
+                              }
+                            }
+                    });
+                    }
+                    </script>
             </div>
             <!-- /.box-body -->
           </div>
